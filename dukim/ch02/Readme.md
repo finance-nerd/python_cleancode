@@ -61,11 +61,120 @@
 - myobject[key]와 같은 형태를 사용할 때 ```__getitem__``` 메소드의 파라미터로 전달
 - 시퀀스는 ```__getitem__```과 ```__len__```을 모두 구현하는 객체
 - 시퀀스의 예 : 리스트, 튜플, 문자열
-
+- 사용자정의 클래스에 ```__getitem__```을 구현하는 방식
+    - 캡슐화 방식
+        ``` 
+        class Items:
+            def __init__(self, *values):
+                self._values = list(values)
+            def __len__(self):
+                return len(self._values)
+            def __getitem__(self, item):
+                return self._values.__getitem__(item)
+        ```
+    - 상속
+        - collections.UserList 부모 클래스를 상속해야 함
+    - 자신만의 시퀀스를 구현
+        - 범위로 인덱싱하는 결과는 해당 클래스와 같은 타입의 인스턴스여야 함
+            - 리스트의 일부를 가져오면 결과는 리스트
+            - 튜플에서 특정 range를 요청하면 결과는 튜플
+            - substring의 결과는 문자열
+            ``` 
+            range(1, 100)[25:50]
+            ```
+        - slice에 의해 제공된 범위는 마지막 요소는 제외해야 함
+     
 ### 컨텐스트 관리자(context manager)
-#### 컨텍스트 관리자 구현
+- 주요 동작의 전후에 작업을 실행하려고 할 때 유용
+- 리소스 관리와 관련하야 컨텍스트 관리자를 자주 볼 수 있음
+    ``` 
+    fd = open(filename)
+    try:
+        prcess_file(fd)
+    finally: fd.close()
+    ```
+  
+    ``` 
+    with open(filename) as fd:
+        process_file(fd)
+    ```
+    - with 문(pep-343)은 컨텍스트 관리자로 진입
+    - open 함수는 컨텍스트 관리자 프로토콜을 구현
+- ```__enter__```와 ```__exit__``` 두개의 메서드로 구성
+- 관심사를 분리하고 독립적으로 유지되어야하는 코드를 분리하는 좋은 방법
+    ``` 
+    def stop_database():
+        run("systemctl stop postgresql.server")
+    def start_database():
+        run("systemctl start postgresql.server")
+    
+    class DBHandler:
+        def __enter__(self):
+            stop_database()
+            return self
+        def __exit__(self, exc_type, ex_value, ex_traceback):
+            start_database()
+    
+    def db_backup():
+        run("pg_dump database")
+  
+    def main():
+        with DBHandler():
+            db_backup()
+    ```
+    - ```__enter__```에서 무언가를 반환하는 것은 좋은 습관
+    - ```__exit__```는 블록에서 발생한 예외를 파라미터로 받음
+        - 블록에 예외가 없으면 모두 None
+        - True를 반환하면 예외를 호출자에게 전파하지 않고 멈춤(True 반환하지 않도록 주의 필요)
 
+#### 컨텍스트 관리자 구현
+- contextlib 모듈은 컨텍스트 관리자를 구현하는데 도움이 되는 도우미 함수와 객체를 제공
+- contextlib.contextmanager 데코레이터를 적용하면 해당 함수의 코드를 컨텍스트 관리자로 변환
+    - 함수는 제너레이터라는 특수한 함수의 형태여야 함
+    - yield 전후 문장을 ```__enter__```와 ```__exit__```로 구분
+    - ```__enter__```에서 반환값 지정도 가능
+    ``` 
+    @contextlib.contextmanager
+    def db_handler():
+        stop_database()
+        yield
+        start_database()
+  
+    def main():
+        with db_handler():
+            db_backup()
+    ```
+- contextlib.ContextDecorator 클래스
+    - 컨텍스트 관리자 안에서 실행될 함수에 데코레이터를 적용하기 위한 로직을 제공하는 믹스인 클래스
+    ``` 
+    class dbhandler_decorator(contextlib.ContextDecorator):
+        def __enter__(self):
+            stop_database()
+        def __exit__(self, exc_type, ex_value, ex_traceback):
+            start_database()
+
+    @dbhandler_decorator()
+    def offline_backup():
+        print("pg_dump database")
+    
+    def main():
+        offline_backup()
+    ```
+    - with문이 없음
+    - 컨텍스트 관리자 내부에서 사용하고자 하는 객체를 얻을수 없음
+        - with offline_backup() as bp:
+        - ```__enter__``` 메서드가 반환한 객체를 사용해야 하는 경우는 이전의 접근방식을 선택
+- contextlib.suppress는 제공한 예외 중 하나가 발생한 경우에는 실패하지 않도록 함
+    ``` 
+    import contextlib
+    
+    with contextlib.suppress(DataConversionException):
+        parse_data(input_json_or_dict)
+    ```
 ### 프로퍼티, 속성과 객체 메서드의 다른 타입들
+- 파이썬 객체의 모든 프로퍼티의 함수는 public
+- 밑줄로 시작하는 속성은 해당 객체에 대해 private을 의미
+    - 외부에서 호출하지 않기를 기대하는 것(문법상 사용 가능)
 #### 파이썬에서의 밑줄
 #### 프로퍼티
 
