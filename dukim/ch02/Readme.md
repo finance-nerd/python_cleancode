@@ -176,8 +176,47 @@
 - 밑줄로 시작하는 속성은 해당 객체에 대해 private을 의미
     - 외부에서 호출하지 않기를 기대하는 것(문법상 사용 가능)
 #### 파이썬에서의 밑줄
+``` 
+class Connector:
+    def __init__(self, source):
+        self.source = source
+        self._timeout = 60
+conn = Connector("postgresql://localhost")
+conn.source
+conn._timeout
+conn.__dict__
+```
+- ```_timeout```은 Connector 클래스 안에서만 사용되고 호출자는 이 속성에 접근하지 않아야 함
+- 동일한 원칙이 메소드에도 적용
+- 이중 밑줄
+    - private이 아님
+    - 여러 번 확장되는 클래스의 메서드를 이름 충돌 없이 오버라이드하기 위해 만들어졌음
+    - name mangling이라 부름
+        - ```_<class-name>__<attribute-name>``` 형태로 만들어짐
+    - 의도한 것이 아니라면 사용 금지
 #### 프로퍼티
+- 다른 프로그래밍 언어에서는 접근 메서드를 만들지만 파이썬에서는 프로퍼티를 사용함
+``` 
+class User:
+    def __init__(self, username):
+        self.username = username
+        self._email = None
 
+    @property
+    def email(self):
+        return self._email
+
+    @email.setter
+    def email(self, new_email):
+        if not is_valid_email(new_email):
+            raise ValueError(f"유효한 이메일이 아니므로 {new_email} 값을 사용할 수 없음")
+        self._email = new_email
+```
+- 대부분의 경우 일반 속성을 사용하는 것으로 충분
+- 특별한 로직이 필요한 경우에만 프로퍼티 사용 권장함
+- 프로퍼티는 명령-쿼리 분리 원칙(command and query separation)을 따르기 위한 좋은 방법
+    - @property는 응답을 위한 쿼리
+    - @<property_name>.setter는 무언가를 하기 위한 커맨드
 ### 이터러블 객체
 #### 이터러블 객체 만들기
 #### 시퀀스 만들기
