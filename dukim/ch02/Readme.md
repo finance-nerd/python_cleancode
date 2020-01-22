@@ -218,19 +218,158 @@ class User:
     - @property는 응답을 위한 쿼리
     - @<property_name>.setter는 무언가를 하기 위한 커맨드
 ### 이터러블 객체
+- 이터러블은 ```__iter__``` 매직 메서드를 구현한 객체
+- 이터레이터는 ```__next__``` 매직 메서드를 구현한 객체
+- 파이썬 반복은 이터러블 프로토콜이라는 자체 프로토콜을 사용해 동작
+    - ```for e in myobject:```
+    - 객체가 ```__next__```나 ```__iter__``` 이터레이터 메서드 중 하나를 포함하는지 여부
+    - 객체가 시퀀스이고 ```__len__```과 ```__getitem```을 모두 가졌는지 여부
 #### 이터러블 객체 만들기
+- 객체를 반복하려고 하면 iter() 함수를 호출
+    - 해당 객체에 ```__iter__``` 메서드가 있는지 확인하고 실행
+    ``` 
+    class DateRangeIterable:
+    """자체 이터레이터 메서드를 가지고 있는 이터러블"""
+
+    def __init__(self, start_date, end_date):
+        self.start_date = start_date
+        self.end_date = end_date
+        self._present_day = start_date
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self._present_day >= self.end_date:
+            raise StopIteration
+        today = self._present_day
+        self._present_day += timedelta(days=1)
+        return today
+    ```
+    - next() 함수를 호출하면 ```__next__``` 메서드에게 위임
+    - 끝에 도달한 이후에도 호출하면 StopIteration 예외 발생
+- 컨테이너 이터러블(container iterable)
+    ``` 
+    class DateRangeContainerIterable:
+        def __init__(self, start_date, end_date):
+            self.start_date = start_date
+            self.end_date = end_date
+    
+        def __iter__(self):
+            current_day = self.start_date
+            while current_day < self.end_date:
+                yield current_day
+                current_day += timedelta(days=1)
+    ```
+    - for 루프는 ```__iter__```를 호출하고 ```__iter__```는 제너레이터를 생성
 #### 시퀀스 만들기
+- iter()함수는 개체에 ```__iter__```가 정의되어 잇지 않으면 ```__getitem__```을 찾고 없으면 TypeError를 발생
+- 시퀀스는 ```__len__```과 ```__getitem__```을 구현
+- 이터러블 객체는 메모리를 적게 사용하고 n번째 요소 검색에 O(n)의 시간 복잡도를 갖음
+- 시퀀스는 많은 메모리를 사용하지만 인덱싱의 시간복잡도는 O(1)임
+    ``` 
+    class DateRangeSequence:
+        def __init__(self, start_date, end_date):
+            self.start_date = start_date
+            self.end_date = end_date
+            self._range = self._create_range()
+    
+        def _create_range(self):
+            days = []
+            current_day = self.start_date
+            while current_day < self.end_date:
+                days.append(current_day)
+                current_day += timedelta(days=1)
+            return days
+    
+        def __getitem__(self, day_no):
+            return self._range[day_no]
+        def __len__(self):
+            return len(self._range)
+    ```
 
 ### 컨테이너 객체
+- ```__contains__``` 메서드를 구현한 객체로 Boolean 값을 반환
+- in 키워드가 발견될 때 호출
+    ``` 
+    element in container
+    ```
+    ``` 
+    container.__contains__(element)
+    ```
+- 코드 리팩토링
+    ``` 
+    def mark_coodinate(grid, coord):
+        if 0 <= coord.x < grid.width and 0 <== coord.y < grid.height:
+            grid[coord] = MARKED
+    ```
 
+    ``` 
+    class Boundaries:
+        def __init__(self, width, height):
+            self.width = width
+            self.height = height
+            
+        def __contains__(self, coord):
+            x, y = coord
+            return 0 <= x < self.width and 0 <= y < self.height
+    
+    class Grid:
+        def __init__(self, width, height):
+            self.width = width
+            self.height = height
+            self.limits = Boundaries(width, height)
+        
+        def __contains__(self, coord):
+            reutrn coord in self.limits
+            
+    def mark_coodinate(grid, coord):
+        if coord in grid:
+            grid[coord] = MARKED            
+    ``` 
 ### 객체의 동적인 속성
-
+- ```__getattr__``` 매직 메서드를 사용해 객체에서 속성을 얻는 방법을 제어 가능
+- <myobject>.<myattribute>를 호출하면 객체의 사전에서 <myattribute>를 찾음
+    - ```__getattribute__```를 호출
+    - 속성이 없는 경우 속성의 이름을 파라미터로 전달하여 ```__getattr__``` 메서드 호출
+ 
 ### 호출형(callable) 객체
-
+- __call__을 사용하면 객체를 일반 함수처럼 호출할 수 있음
+- 함수 호출 사이에 정보를 저장할 수 있음
+    ``` 
+    class CallCount:
+        def __init__(self):
+            self._counts = defaultdict(int)
+        def __call__(self, argument):
+            self._counts[argument] += 1
+            return self._counts[argument]
+    cc = CallCount()
+    print(cc(1))
+    print(cc(1))
+    print(cc(2))
+    print(cc(2))
+    print(cc(2))
+    ```
+- 데코레이터 생성시 이 메서드를 사용하면 편리함
 ### 매직 메서드 예약
-
 ### 파이썬에서 유의할 점
 #### 변경 가능한(mutable) 파라미터의 기본 값
-#### 내장(built-in) 타입 확장
+- 변경 가능한 객체를 함수의 기본 인자로 사용하면 안됨
+``` 
+def wrong_user_display(user_metadata: dict = {"name": "John", "age": 30}):
+    name = user_metadata.pop("name")
+    age = user_metadata.pop("age")
+    return f"{name} ({age})"
 
+print(wrong_user_display())
+print(wrong_user_display({"name": "Jane", "age": 25}))
+print(wrong_user_display())
+```
+    - 변경 가능한 인자를 사용
+    - 가변 객체를 수정하여 부작용 발생
+#### 내장(built-in) 타입 확장
+- 리스트, 문자열, 사전과 같은 내장 타입을 확장하는 방법은 collections 모듈 이용
+    - dict 확장시 : collections.UserDict
+    - 리스트 확장시 : collections.UserList
+    - 문자열 확장시 : collections.UserString
 ### 요약
