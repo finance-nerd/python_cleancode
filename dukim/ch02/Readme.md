@@ -353,7 +353,7 @@ class User:
     ```
 - 데코레이터 생성시 ```__call__``` 메서드를 사용하면 편리함
 ### 매직 메서드 예약
-![magic_method](magic_method.png)
+![magic_method](../images/magic_method.png)
 ### 파이썬에서 유의할 점
 #### 변경 가능한(mutable) 파라미터의 기본 값
 - 변경 가능한 객체를 함수의 기본 인자로 사용하면 안됨
