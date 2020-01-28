@@ -21,8 +21,7 @@
     ``` 
     my_numbers = (4, 5, 3, 9)
     my_numbers[-1]
-    my_numbers[-3]
-  
+    my_numbers[-3]  
     ```
 - slice를 사용하여 특정 구간의 요소를 구할 수 있음
     ``` 
@@ -90,7 +89,7 @@
     ``` 
     fd = open(filename)
     try:
-        prcess_file(fd)
+        process_file(fd)
     finally: fd.close()
     ```
   
@@ -172,7 +171,7 @@
         parse_data(input_json_or_dict)
     ```
 ### 프로퍼티, 속성과 객체 메서드의 다른 타입들
-- 파이썬 객체의 모든 프로퍼티의 함수는 public
+- 파이썬 객체의 모든 프로퍼티와 함수는 public
 - 밑줄로 시작하는 속성은 해당 객체에 대해 private을 의미
     - 외부에서 호출하지 않기를 기대하는 것(문법상 사용 가능)
 #### 파이썬에서의 밑줄
@@ -215,8 +214,8 @@ class User:
 - 대부분의 경우 일반 속성을 사용하는 것으로 충분
 - 특별한 로직이 필요한 경우에만 프로퍼티 사용 권장함
 - 프로퍼티는 명령-쿼리 분리 원칙(command and query separation)을 따르기 위한 좋은 방법
-    - @property는 응답을 위한 쿼리
-    - @<property_name>.setter는 무언가를 하기 위한 커맨드
+    - ```@property```는 응답을 위한 쿼리
+    - ```@<property_name>.setter```는 무언가를 하기 위한 커맨드
 ### 이터러블 객체
 - 이터러블은 ```__iter__``` 매직 메서드를 구현한 객체
 - 이터레이터는 ```__next__``` 매직 메서드를 구현한 객체
@@ -263,7 +262,9 @@ class User:
     ```
     - for 루프는 ```__iter__```를 호출하고 ```__iter__```는 제너레이터를 생성
 #### 시퀀스 만들기
-- iter()함수는 개체에 ```__iter__```가 정의되어 잇지 않으면 ```__getitem__```을 찾고 없으면 TypeError를 발생
+- iter() 함수
+    - ```__iter__``` -> ```__getitem__```순으로 찾음
+    - 없을시 TypeError를 발생
 - 시퀀스는 ```__len__```과 ```__getitem__```을 구현
 - 이터러블 객체는 메모리를 적게 사용하고 n번째 요소 검색에 O(n)의 시간 복잡도를 갖음
 - 시퀀스는 많은 메모리를 사용하지만 인덱싱의 시간복잡도는 O(1)임
