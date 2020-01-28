@@ -329,7 +329,7 @@ class User:
     ``` 
 ### 객체의 동적인 속성
 - ```__getattr__``` 매직 메서드를 사용해 객체에서 속성을 얻는 방법을 제어 가능
-- <myobject>.<myattribute>를 호출하면 객체의 사전에서 <myattribute>를 찾음
+- ```<myobject>.<myattribute>```를 호출하면 객체의 사전에서 ```<myattribute>```를 찾음
     - ```__getattribute__```를 호출
     - 속성이 없는 경우 속성의 이름을 파라미터로 전달하여 ```__getattr__``` 메서드 호출
  
