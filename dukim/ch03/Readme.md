@@ -74,8 +74,48 @@
     - 여러 개의 작은 것으로 나누는 것도 고려
 - 예외 리펙토링
     - 올바른 수준의 추상화 단계에서 예외 처리
-    - [리펙토링이 필요한 코드](errorhandling1.py)
+        - [리펙토링이 필요한 코드](errorhandling1.py)
+        - [리펙토링 후 코드](errorhandling2.py)
+    - Traceback 노출 금지
+        - 오류가 너무 중요하다면 전파해도 됨
+        - 정확성이 중요한 상황이라면 프로그램을 종료할 수 있음
+        - traceback 정보, 메시지, 기타 수집 가능한 정보를 로그로 남기는 것이 중요
+        - 세부사항은 절대 사용자에게 보여서는 안됨
+        - 사용자에게 알리려면 일반적인 메시지를 사용
+    - 비어있는 except 블록 지양
+        - 가장 안 좋은 예
+            ``` 
+            try:
+                process_data()
+            except:
+                pass
+            ```
+    - 원본 예외 포함
+        - 오류 처리시 메시지를 변경할 경우에는 원본 메시지를 포함하는 것이 좋음
+        - ```raise <e> from <original_exception>``` 구문 사용
+            ``` 
+            class InternalDataError(Exception):
+                def process(data_dictionary, record_id):
+                    try:
+                        return data_dictionary[record_id]
+                    exception KeyError as e:
+                        raise InternalDataError("Record not present") from e
+            ```    
 #### 파이썬에서 어설션 사용하기
+- 절대로 일어나지 않아야 하는 상황
+- assert 문에 사용된 표현식은 불가능한 조건을 의미
+- 비지니스 로직과 섞어나 소프트웨어의 제어 흐름 메커니즘으로 사용해서는 안됨
+    ``` 
+    try:
+        assert condition.holds(), "조건에 맞지 않음."
+    except AssertionError:
+        alternative_procedure()
+    ``` 
+    - 어설션 문장이 함수인것도 나쁜 코드
+    ``` 
+    result= condition.holds()
+    assert result > 0, "에러 {0}".format(result)
+    ```
 ### 관심사의 분리
 #### 응집력(cohesion)과 결합력(coupling)
 ### 개발 지침 약어
