@@ -74,13 +74,7 @@
     - 여러 개의 작은 것으로 나누는 것도 고려
 - 예외 리펙토링
     - 올바른 수준의 추상화 단계에서 예외 처리
-    ``` 
-    class DataTransport:
-        retry_threshhold: int = 5
-        retry_n_times: int = 3
-        
-        def __init__(self, connector
-    ``` 
+    - [리펙토링이 필요한 코드](errorhandling1.py)
 #### 파이썬에서 어설션 사용하기
 ### 관심사의 분리
 #### 응집력(cohesion)과 결합력(coupling)
