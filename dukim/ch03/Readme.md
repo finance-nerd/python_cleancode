@@ -117,12 +117,91 @@
     assert result > 0, "에러 {0}".format(result)
     ```
 ### 관심사의 분리
+- 책임이 다르면 컴포넌트, 계층, 모듈로 분리되어야 함
+- 각 부분은 기능의 관심사에 대해서만 책임을 지며 다른 부분에 대해서는 알 필요가 없음
+- 파급(ripple) 효과를 최소화하여 유지보수성을 향상
+- 유지보수성을 향상시키기 위해서는 적절한 캡슐화가 필요
 #### 응집력(cohesion)과 결합력(coupling)
+- 응집력
+    - 객체가 작고 잘 정의된 목적을 가져야 하며 가능하면 작아야 함
+    - 응집력이 높을수록 더 유용하고 재사용성이 높아지므로 더 좋은 디자인
+- 결합력
+    - 두 개 이상의 객체의 종속성
+    - 낮은 재사용성
+    - 파급 효과
+    - 낮은 수준의 추상화
+- 잘 정의된 소프트웨어는 높은 응집력과 낮은 결합력을 갖음
+    - high cohesion and low coupling
 ### 개발 지침 약어
-#### DRY/OAOO
-#### YAGNI
-#### KIS
-#### EAFP/LBYL
+#### DRY(Do not Repeat Yourself)/OAOO(Once and Only Once)
+- 코드 중복으로 인한 무제
+    - 오류가 발생하기 쉬움
+    - 비용이 비쌈
+    - 신뢰성이 떨어짐
+        ``` 
+        def process_students_list(students):
+            students_ranking = sorted(
+                students, 
+                key=lambda s: s.passed * 11 - s.failed * 5 - s.years * 2
+            )
+            
+            for student in students_ranking:
+                print(
+                    "이름: {0}, 점수: {1}".format(
+                        student.name,
+                        (student.passed * 11 - student.failed * 5 - student.years * 2)
+                    )
+                )
+        ```
+    - 중복 리펙토링
+        ``` 
+        def score_for_student(student):
+            return student.passed * 11 - student.failed * 5 - student.years * 2
+            
+        def process_students_list(students):
+            students_ranking = sorted(students, key=score_for_student)
+            
+            for student in students_ranking:
+                print(
+                    "이름: {0}, 점수: {1}".format(
+                        student.name, 
+                        score_for_student(student)
+                    )
+                )
+        ```  
+    - 중복을 제거하는 방법
+        - 함수 생성 기법
+        - 완전히 새로운 객체
+        - 컨텍스트 관리자 사용
+        - 이터레이터나 제너레이터
+        - 데코레이터
+#### YAGNI(You Ain't Gonna Need it)
+- 과잉 엔지니어링을 하지 않아야 함
+- 유지 보수가 가능한 소프트웨어를 만드는 것은
+    - 미래의 요구사항을 예측하는 것이 아님
+    - 현재의 요구사항을 잘 해결하기 위한 소프트웨어를 작성
+    - 나중에 수정하기 쉽도록 작성
+#### KIS(Keep It Simple)
+- 디자인이 단순할수록 유지 관리가 쉬움
+- 문제에 맞는 가장 작은 데이터 구조를 사용
+    - [리펙토링이 필요한 코드](ComplicatedNamespace1.py)
+    - [리펙토링 후 코드](ComplicatedNamespace2.py)
+#### EAFP(Easier to Ask Forgiveness than Permission)/LBYL(Look Before You Leap)
+- EAFP
+    - 실제 동작하지 않을 경우 대응
+- LBYL
+    - 동작하기 전에 미리 확인
+    ``` 
+    if os.path.exists(filename):
+        with open(filename) as f:
+    ```
+- 파이썬은 EAFP방식으로 만들어졌음
+    ``` 
+    try:
+        with open(filename) as f:
+    except FileNotFoundError as e:
+        logging.error(e)
+    ```
 ### 컴포지션과 상속
 #### 상속이 좋은 선택인 경우
 #### 상속 안티패턴
