@@ -203,14 +203,123 @@
         logging.error(e)
     ```
 ### 컴포지션과 상속
+- 메서드를 공짜로 얻을 수 있기 때문에 상속을 하는 것은 좋지 않음
+- 코드를 재사용하는 올바른 방법
+    - 여러 상황에서 동작 가능하고 쉽게 조립할 수 있는 응집력 높은 객체를 사용하는 것
 #### 상속이 좋은 선택인 경우
+- 파생 클래스를 만드는 것은 양날의 검이 될 수 있으므로 주의
+    - 부모 클래스 메서드 전수 vs 너무 많은 기능 추가
+- 상속받은 대부분의 메소드를 필요로 하지 않고 재정의하거나 대체해야 한다면 설계상 실수
+    - 상위 클래스가 막연한 정의와 너무 많은 책임을 가졌을 경우
+    - 하위 클래스가 상위 클래스의 적잘한 세분화가 아닌 경우
+- 상속을 잘 사용한 예
+    - http.server 패키지의 BaseHTTPRequestHandler 기본 클래스와 SimpleHTTPRequestHandler 하위 클래스
+    - 인터페이스 정의
+    - 예외
 #### 상속 안티패턴
+- [리펙토링이 필요한 코드](TransactionPolicy1.py)
+    - 계층 구조가 잘못됨
+        - TransactionPolicy 클래스가 사전 타입인지 도출하기 힘듬
+    - 결합력에 대한 문제
+        - 필요없는 메서드를 상속 받음
+- [리펙토링 한 코드](TransactionPolicy2.py)
 #### 파이썬의 다중상속
+- 다중 상속은 양날의 검
+    - 어댑터 패턴과 믹스인을 사용
+- 메서드 결정 순서(MRO)
+![magic_method](../images/multi_inherit.png)
+    - [멀티상속 코드](MultiInherit.py)
+- 믹스인(mixin)
+    - 코드를 재사용하기 위해 일반적인 행동을 캡슐화해놓은 기본 클래스
+    - 믹스인 클래스 자체로는 유용하지 않음
+    - 클래스에 정의된 메서드나 속성에 의존
+    - 믹스인 클래스만 확장해서는 확실히 동작하지 않음
+    - 다른 클래스와 함께 다중 상속하여 믹스인에 있는 메서드나 속성을 사용
+    - [믹스인](mixin.py)    
 ### 함수와 메서드의 인자
 #### 파이썬의 함수 인자 동작 방식
+- 인자는 함수에 어떻게 복사되는가
+    - 값에 의한 전달(passwd by a value)
+    - mutable 객체를 전달시엔 부작용을 유발할 수 있으므로 주의해야 함
+- 가변인자
+    - 가변 인자를 사용하려면 패킹(packing)할 변수의 이름 앞에 별표를 사용
+        ``` 
+        def f(first, second, third):
+            print(first, second, third)
+            
+        l = [1, 2, 3]
+        f(*l)
+        ```
+    - 부분적인 언패킹도 가능
+        ``` 
+        def show(e, rest):
+            print("요소: {0} - 나머지: {1}".format(e, rest))
+        first, *rest = [1, 2, 3, 4, 5]
+        show(first, rest)
+        *rest, last = range(6)
+        show(last, rest)
+        first, *middle, last = range(6)
+        first, last, *empty = (1, 2)
+        ```
+    - 변수 언패킹의 좋은 예는 반복임
+        ``` 
+        USERS = [(i, f"first_name_{i}", f"last_name_{i}") for i in range(1000)]
+        
+        class User:
+            def __init__(self, user_id, first_name, last_name):
+                self.user_id = user_id
+                self.first_name = first_name
+                self.last_name = last_name
+        def bad_users_from_rows(dbrows) -> list:
+            return [User(row[0], row[1], row[2]) for row in dbrows]
+            
+        def users_from_rows(dbrows) -> list:
+            return [User(user_id, first_name, last_name) for (user_id, first_name, last_name) in dbrows]
+        ```
+        - max 함수도 좋은 사용 예
+    - 이중 별표(**)를 키워드 인자에 사용할 수 있음
+        - 사전에 이중 별표를 사용하여 함수에 전달하면 
+            - 파라미터의 이름으로 키를 사용
+            - 파라미터의 값으로 사전의 값을 사용
+            ``` 
+            function(**{"key": "value"})
+            function(key="value")
+            ```
+        - 이중 별표로 시작하는 파라미터를 함수에 사용하면 키워드 제공 인자들이 사전으로 패킹
+            ``` 
+            def function(**kwargs):
+                print(kwargs)
+            function(key="value")
+            ```
 #### 함수 인자의 개수
+- 너무 많은 파라미터가 필요한 경우 나쁜 코드일 수 있음
+- 너무 많은 인자를 사용하는 함수나 메서드의 해결 방법
+    - 소프트웨어 디자인의 원칙을 사용
+        - 구체화(reification)
+            - 모든 인자를 포함하는 새로운 객체를 만듬
+            - 추상화를 빼먹었기 때문이라 판단 
+    - 파이썬의 가변 인자나 키워드 인자 활용
+        - 매우 동적이어서 유지보수하기 어렵기 때문에 주의해서 사용
+    - 여러 작은 함수로 분리
+- 함수 인자와 결합력
+    - 함수 서명의 인수가 많을수록 호출자 함수와 밀접하게 결합될 가능성이 커짐
+- 많은 인자를 취하는 작은 함수의 서명
+    - 파라미터를 포함하는 공통 객체 활용
+        ``` 
+        track_request(request.headers, request.ip_addr, request.request_id)
+        vs
+        track_request(request)
+        ```
+        - 함수는 전달받은 객체를 변경할 경우 부작용이 발생할 수 있음
+    - *args와 *kwargs 활용
+        - 서명을 잃어버리며 가독성을 상실함
 ### 소프트웨어 디자인 우수 사례 결론
 #### 소프트웨어의 독립성(orthogonality)
+- 모듈, 클래스, 함수를 변경하면 수정한 컴포너트가 외부에 영향을 미치지 않아야 함
+    - [orthogonality](orthogonality.py)
 #### 코드 구조
+- 대용량 파일을 작은 파일로 나눌땐 패키지를 활용
+    - 모듈을 임포트할 때 구문을 분석하고 메모리에 로드할 객체가 줄어듬
+    - 의존성이 줄었기 때문에 더 적은 모듈만 가져오면 됨
 ### 요약
 
