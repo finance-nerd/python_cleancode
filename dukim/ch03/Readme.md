@@ -61,7 +61,7 @@
         - 견고성과 정확성 간의 트레이드오프
         ``` 
         configuration = {"dbport": 5432}
-        configuration .get("dbhost": "localhost")
+        configuration .get("dbhost", "localhost")
         ```
         - 값 대체하는 것은 오류를 숨겨버릴 수 있으므로 주의해서 사용해야 함 
     - 에러 로깅
@@ -242,7 +242,10 @@
 ### 함수와 메서드의 인자
 #### 파이썬의 함수 인자 동작 방식
 - 인자는 함수에 어떻게 복사되는가
-    - 값에 의한 전달(passwd by a value)
+    - 값에 의한 전달(passed by a value)
+        - 논란이 있음
+        - pass-by-object-reference
+        - [함수 전달 방식 논란](https://robertheaton.com/2014/02/09/pythons-pass-by-object-reference-as-explained-by-philip-k-dick/)
     - mutable 객체를 전달시엔 부작용을 유발할 수 있으므로 주의해야 함
 - 가변인자
     - 가변 인자를 사용하려면 패킹(packing)할 변수의 이름 앞에 별표를 사용
