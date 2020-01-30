@@ -1,3 +1,5 @@
+# def function(kwargs): ## error
+# def function(*kwargs): ## error
 def function(**kwargs):
     print(kwargs)
 
