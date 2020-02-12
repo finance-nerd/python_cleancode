@@ -40,12 +40,12 @@
         - 코드 재사용과 DRY 원칙의 모든 이점 공유
         - 작고 간단한 클래스를 생성, 데코레이터로 기능 보강
         - 유지보수 시 데코레이터를 사용해 기존 로직을 훨씬 쉽게 변경
-    - [리펙토링이 필요한 코드](serialize_decorator_1.py)
+    - [리펙토링이 필요한 코드](decorator_serialize_1.py)
         - 이벤트 클래스와 직렬화 클래스가 1:1로 매핑되어 있어서 클래스가 많아짐
         - password 필드를 숨기기 위한 기능이 유연하지 않음(타클래스에서 사용 불가)
         - serialize() 메서드는 모든 이벤트 클래스에 있어야 함
-    - [리펙토링 후 코드](serialize_decorator_2.py)
-        - [풀어쓴 코드](serialize_decorator_3.py) 
+    - [리펙토링 후 코드](decorator_serialize_2.py)
+        - [풀어쓴 코드](decorator_serialize_3.py) 
   
 #### 다른 유형의 데코레이터
 * 함수, 메서드, 클래스 뿐만 아니라 제너레이터, 코루틴에도 적용 가능
