@@ -44,13 +44,14 @@ class LoginEvent:
     ip: str
     timestamp: datetime
 
-seralization = Serialization(
+
+serialization = Serialization(
     username=show_original,
     password=hide_field,
     ip=show_original,
     timestamp=format_time
 )
 
-serialization_object = seralization(LoginEvent) # serialize() 함수 추가
+serialization_object = serialization(LoginEvent) # serialize() 함수 추가
 login_event = LoginEvent("phyhton", "cleancode", "http://", datetime.today())
 print(serialization_object.serialize(login_event))
