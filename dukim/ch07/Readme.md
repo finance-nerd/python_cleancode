@@ -34,12 +34,46 @@
 * 이터러블이나 컨테이너의 대안이 될 수 있음
 * 컴프리헨션(comprehension)에 의해 정의될 수 있음
     - 컴프리헨션이란 이터러블 객체를 쉽게 생성하기 위한 기법
-    - ex) ```lc = [i for i in rang(10)]```
+    - (x**2 for x in range(10))
 ###이상적인 반복
 #### 관용적인 반복 코드
+* 시퀀스
+    - [시퀀스1](number_sequence.py)
+        - 이터러블 형태의 파라미터로 사용할 수 없음
+    - [시퀀스2](sequence_of_numbers.py)
+        - __iter__()와 __next__()를 구현하여 이터러블 객체로 만듬
+        - next() 내장 함수 사용 가능
 ##### next() 함수
+* 이터러블을 다음 요소로 이동시키고 기존의 값을 반환
+    ``` 
+    next = iter("hello")
+    next(word)
+    ...
+    next(word, "default value") # StopIteration 발생시 디폴트값 리턴
+    ```
 ##### 제너레이터 사용하기
+* yield 키워드가 해당 함수를 제너레이터로 만들어 줌
+    ``` 
+    def sequence(start=0):
+        while True:
+            yield start
+            start += 1
+    seq = sequence(10)
+    next(seq)
+    list(zip(sequence(), "abcdef"))
+    ```
 ##### itertools
+* 이터러블은 파이썬과 잘 어울림
+* 위 sequence예제는 itertools.count()와 유사함
+* 구매 이력 예제
+    ```
+    def process(self):
+        for purchase in self.purchases:
+            if purchase > 1000.0:
+                ...
+    ``` 
+        - 기준 수치가 변경된다면?
+        - 
 ##### 이터레이터를 사용한 코드 간소화
 #### 파이썬의 이터레이터 패턴
 ##### 이터레이션 인터페이스
