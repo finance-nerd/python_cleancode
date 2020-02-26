@@ -12,7 +12,7 @@
 #### 제너레이터 개요
 * yield 키워드를 사용하면 제너레이터 함수가 됨
 * 모든 제너레이터 객체는 이터러블임
-* [제너레이터 적용 전/후 예제](generators_1.py)
+* [제너레이터 적용 전/후 예제-load_purchases](generators_1.py)
     ``` 
     def _load_purchases(filename):
         purchases = []
@@ -64,20 +64,47 @@
     ```
 ##### itertools
 * 이터러블은 파이썬과 잘 어울림
-* 위 sequence예제는 itertools.count()와 유사함
-* 구매 이력 예제
+* itertools 모듈을 사용하면 이터레이션 기능을 활용할 수 있음
+    - 위 sequence 예제는 itertools.count()와 유사함
+* [구매 통계](generators_1.py)예제 에서 구매 이력에 조건 추가
     ```
     def process(self):
         for purchase in self.purchases:
             if purchase > 1000.0:
                 ...
     ``` 
-        - 기준 수치가 변경된다면?
-        - 
+    - 기준 수치가 변경된다면?
+    - 파라미터가 둘 이상 필요하다면?
+    - 조건이 바뀐다면?
+    - 람다 함수를 사용해야 하는가?
+* 고유 책임은 구매 이력에 대해 잘 정의된 지표 값을 계산하고 출력하는 것
+* 클라이언트의 요구로부터 독립되어야 함
+* 융통성이 있어야 하고 외부 요인에 결합력이 높아서는 안됨
+    ```
+    from itertools import islice
+    purchases = islice(filter(lambda p: p > 1000.0, purchases), 10)
+    stats = PurchasesStats(purchases).process()
+    ```
+    - islice는 제너레이터 이므로 메모리 손해가 없음
 ##### 이터레이터를 사용한 코드 간소화
+* itertools.tee
+    - 이터러블을 여러개의 새로운 이터러블로 분할
+    - [구매 통계 최종판](generators_2.py)
+* 중첩 루프 개선 방안
+    - [중첩 루프 개선 예제](nested.py)
 #### 파이썬의 이터레이터 패턴
 ##### 이터레이션 인터페이스
+* __iter__ 매직 메서드를 통해 이터레이터를 반환
+* __next__ 매직 메서드를 통해 반복 로직을 구현
+![iteration interface](../images/iteration.png)
+* 이터레이터만 구현한 시퀀스
+    - [시퀀스 이터레이터](sequence_iterator.py)
+    - for 문에서도 동작하게 하려면 __iter__도 구현하면 됨
 #####이터러블이 가능한 시퀀스 객체
+* 이터러블 객체가 아닐경우 반복 대안책
+    - 객체가 시퀀스(__getitem__(), __len__() 구현)인 경우 반복 가능
+    - [시퀀스](sequence_iterator2.py)
+        - __iter__를 구현하지 않았을 때 동작하는 대비책임에 주의
 ### 코루틴(coroutine)
 #### 제너레이터 인터페이스의 메서드
 ##### close()
