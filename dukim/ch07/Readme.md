@@ -106,14 +106,63 @@
     - [시퀀스](sequence_iterator2.py)
         - __iter__를 구현하지 않았을 때 동작하는 대비책임에 주의
 ### 코루틴(coroutine)
+* 코루틴이란?
+    - cooperative routine의 약자로  서로 협력하는 루틴이란 의미
+    - 루틴간의 종속 관계가 아닌 대등한 관계로 특정 시점에 상대방의 코드를 실행
+* 제너레이터가 코루틴을 지원하기 위해 PEP-342에 메서드 추가됨
+    - .close()
+    - .throw(ex_type[, ex_value[, ex_traceback]])
+    - .send(value)
 #### 제너레이터 인터페이스의 메서드
 ##### close()
-##### ```throw(ex_type[, ex_value[, ex_traceback]])```
+* 호출 시 GeneratorExit 예외 발생
+    - 따로 처리 안할시 제너레이터가 더 이상 값을 생성하지 않으며 반복 중지됨
+* [코루틴 예제-stop](coroutine_1.py)
+##### throw(ex_type[, ex_value[, ex_traceback]])
+* 현재 제너레이터가 중단된 위치에서 예외를 던짐
+* [코루틴 예제-throw](coroutine_2.py)
 ##### send(value)
+* 제너레이터와 코루틴을 구분하는 기준이 되는 메서드
+* 코루틴에 값을 전송하는 것은 yield 구문이 멈춘 상태에서만 가능
+    - next() 메서드를 적어도 한번은 호출해야 함
+    - @prepare_coroutine
+        - 자동으로 초기화를 해줌
+* [코루틴 예제-send](coroutine_3.py)
+* [코루틴 예제-데코레이터init](coroutine_4.py)
 #### 코루틴 고급 주제
 ##### 코루틴에서 값 반환하기
+* 반복이란
+    - StopIteration 예외가 발생할 때까지 next() 메서드를 계속해서 호출하는 매커니즘
+* 코루틴
+    - 기술적으로 제너레이터
+    - 반복을 염두하고 만든 기술이 아님
+    - 나중에 재실행 될때까지 코드의 실행을 멈추는 것이 목표
+    - 제너레이터에서 값을 반환(return)하면 반복이 즉시 증단됨
+        ``` 
+        def generator():
+            yield 1
+            yield 2
+            return 3
+        value = generator()
+        next(value)
+        next(value)
+        try:
+            next(value)
+        except StopIteration as e:
+            print("ret : ", e.value)
+        ``` 
 #### 작은 코루틴에 위임하기 - yield from 구문
+* 값을 반환할 수 있다는 점은 흥미로운 기능
+    - value = generator()는 원하는대로 동작 하지 않음(next 호출해야함)
 ##### 가장 간단한 yield from 사용 예
+* [itertools.chain() 비슷한 함수](yield_1.py)
+    - yield from 구문은 어떤 이터러블에 대해서도 동작
+    - 최상위 제너레이터가 직접 값을 yield 한 것과 같은 효과를 나타냄
 ##### 서브 제너레이터에서 반환한 값 구하기
+* yeild from을 사용하면 코루틴의 종료 시 최종 반환 값을 구할 수 있음
+    - [최종값 반환](yield_2.py)
 ##### 서브 제너레이터와 데이터 송수신하기
+* [서브 제너레이터와 데이터 송수신](yield_3.py)
+    - main 제너레이터에만 값을 보냈음
+    - 실제 값을 받은 것은 내부 제너레이터임
 ### 비동기 프로그래밍
